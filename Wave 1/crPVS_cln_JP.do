@@ -216,8 +216,7 @@ lab def q16_label 1	"Low cost" 2 "Short distance" 3	"Short waiting time" 4 "Good
 lab val q16 q16_label
 
 * q17 (overall rating of received healthcare)
-replace q17 = .a if q17 == .
-recode q17 (5 = .a) (999 = .) // Confirm with Todd how to code 999: BLANK
+recode q17 (. = .a) (5 = .a) (999 = .a) // Confirm with Todd how to code 999: BLANK
 lab def q17_label 0 "Poor" 1 "Fair" 2 "Good" 3 "Very good" 4 "Excellent" .a "NA"
 lab val q17 q17_label
 
@@ -227,20 +226,17 @@ lab def q18_label .d "Don't know" .a "NA"
 lab val q18 q18_label
 
 * q19 (categorized of # of visits)
-replace q19 = .a if q19 == .
-recode q19 (999 = .) (1 = 0) (2 = 1) (3 = 2) (4 = 3)
+recode q19 (. = .a) (999 = .a) (1 = 0) (2 = 1) (3 = 2) (4 = 3)
 lab def q19_label 0 "0" 1 "1-4" 2 "5-9" 3 "10 or more" .a "NA"
 lab val q19 q19_label
 
 * q20 (same or different facility)
-replace q20 = .a if q20 == .
-recode q20 (999 = .)
+recode q20 (. = .a) (999 = .a)
 lab def q20_label 0 "No" 1 "Yes" .a "NA"
 lab val q20 q20_label
 
 * q21 (# of different facilities)
-replace q21 = .a if q21 == .
-recode q21 (999 = .a) (998 = .d)
+recode q21 (. = .a) (999 = .a) (998 = .d)
 lab def q21_label .d "Don't know" .a "NA"
 lab val q21 q21_label
 
@@ -276,13 +272,11 @@ lab def q27_label 0 "No" 1 "Yes" .a "NA" .d "Don't know"
 lab val q27_a q27_label
 
 * q27_b (mammo)
-replace q27_b = .a if q27_b == .
-recode q27_b (999 = .a) (998 = .d)
+recode q27_b (. = .a) (999 = .a) (998 = .d)
 lab val q27_b q27_label
 
 * q27_c (cervical)
-replace q27_c = .a if q27_c == .
-recode q27_c (999 = .a) (998 = .d)
+recode q27_c (. = .a) (999 = .a) (998 = .d)
 lab val q27_c q27_label
 
 * q27_d (vision)
@@ -322,24 +316,20 @@ recode q27l_jp (999 = .a) (998 = .d)
 lab val q27l_jp q27_label
 
 * q28_a (medical mistake)
-replace q28_a = .a if q28_a == .
-recode q28_a (999 = .)
-lab def q28_label 0 "No" 1 "Yes" .a "I did not get healthcare in past 12 months"
+recode q28_a (. = .a) (999 = .)
+lab def q28_label 0 "No" 1 "Yes" .a "I did not get healthcare in past 12 months" .a "NA"
 lab val q28_a q28_label
 
 * q28_b (treat unfairly)
-replace q28_b = .a if q28_b == .
-recode q28_b (999 = .)
+recode q28_b (. = .a) (999 = .)
 lab val q28_b q28_label
 
 * q28c_jp (not enough explaination)
-replace q28c_jp = .a if q28c_jp == .
-recode q28c_jp (999 = .)
+recode q28c_jp (. = .a) (999 = .a)
 lab val q28c_jp q28_label
 
 * q28d_jp (wait long time)
-replace q28d_jp = .a if q28d_jp == .
-recode q28d_jp (999 = .)
+recode q28d_jp (. = .a) (999 = .a)
 lab val q28d_jp q28_label
 
 * q29 (not get healthcare)
@@ -396,7 +386,7 @@ lab val q34 q34_label
 
 * q35 (schedule or walk in)
 replace q35 = .a if q35 == .
-recode q35 (999 = .)
+recode q35 (999 = .a)
 lab def q35_label 0 "No, I did not have an appointment" 1 "Yes, the visit was scheduled, and I had an appointment" .a "NA"
 lab val q35 q35_label	
 
@@ -409,7 +399,7 @@ lab val q36 q36_label
 
 * q37 (wait min)
 replace q37 = .a if q37 == .
-recode q37 (999 = .)
+recode q37 (999 = .a)
 lab def q37_label 1	"Less than 15 minutes" 2 "15 minutes to less than 30 minutes" 3	"30 minutes to less than 1 hour" ///
 				  4	"1 hour to less than 2 hours" 5	"2 hours to less than 3 hours" 6 "3 hours to less than 4 hours" ///
 				  7	"More than 4 hours" .a "NA" .r "Refused"
@@ -419,64 +409,52 @@ lab val q37 q37_label
 tostring q37_other, replace
 
 * q38_a (overall quality)
-replace q38_a = .a if q38_a == .
-recode q38_a (999 = .)
+recode q38_a (. = .a) (999 = .a)
 lab def q38_label 4 "Excellent" 3 "Very good" 2 "Good" 1 "Fair"  0 "Poor" .a "NA" 5 "I have not had prior visits or tests" 6 "The clinic had no other staff" // ask Todd how to deal with this extra answer
 lab val q38_a q38_label  
 
 * q38_b (knowledge and skill)
-replace q38_b = .a if q38_b == .
-recode q38_b (999 = .)
+recode q38_b (. = .a) (999 = .a)
 lab val q38_b q38_label 
 
 * q38_c (equip and clinical)
-replace q38_c = .a if q38_c == .
-recode q38_c (999 = .)
+recode q38_c (. = .a) (999 = .a)
 lab val q38_c q38_label 
 
 * q38_d (respect)
-replace q38_d = .a if q38_d == .
-recode q38_d (999 = .)
+recode q38_d (. = .a) (999 = .a)
 lab val q38_d q38_label 
 
 * q38_e (prior)
-replace q38_e = .a if q38_e == .
-recode q38_e (999 = .)
+recode q38_e (. = .a) (999 = .a)
 lab val q38_e q38_label 
 
 * q38_f (explain)
-replace q38_f = .a if q38_f == .
-recode q38_f (999 = .)
+recode q38_f (. = .a) (999 = .a)
 lab val q38_f q38_label 
 
 * q38_g (your opnion)
-replace q38_g = .a if q38_g == .
-recode q38_g (999 = .)
+recode q38_g (. = .a) (999 = .a)
 lab val q38_g q38_label 
 
 * q38_h (time spent)
-replace q38_h = .a if q38_h == .
-recode q38_h (999 = .)
+recode q38_h (. = .a) (999 = .a)
 lab val q38_h q38_label 
 
 * q38_i (wait time)
-replace q38_i = .a if q38_i == .
-recode q38_i (999 = .)
+recode q38_i (. = .a) (999 = .a)
 lab val q38_i q38_label 
 
 * q38_j (courtesy and helpfulness)
-replace q38_j = .a if q38_j == .
-recode q38_j (999 = .)
+recode q38_j (. = .a) (999 = .a)
 lab val q38_j q38_label 
 
 * q38_k (time to get appointment)
-replace q38_k = .a if q38_k == .
-recode q38_k (999 = .)
+recode q38_k (. = .a) (999 = .a)
 lab val q38_k q38_label 
 
 * q39 (recommment)
-replace q39 = .a if q39 == .
-recode q39 (999 = .)
+recode q39 (. = .a) (999 = .a)
 lab def q39_label .a "NA"
 lab val q39 q39_label
 
@@ -532,8 +510,8 @@ recode q41f_jp (999 = .a)
 lab val q41f_jp q41_label
 
 * q42 (pub system)
-recode q42 (999 = .)
-lab def q42_label 4	"Excellent" 3 "Very good" 2	"Good" 1 "Fair" 0 "Poor"
+recode q42 (999 = .a)
+lab def q42_label 4	"Excellent" 3 "Very good" 2	"Good" 1 "Fair" 0 "Poor" .a "NA"
 lab val q42 q42_label
 
 * q43 (pri system)
@@ -541,41 +519,42 @@ recode q43 (999 = .)
 lab val q43 q42_label
 
 * q45 (better, same, worse)
-recode q45 (999 = .) (1 = 2) (2 = 1) (3 = 0)
-lab def q45_label 2	"Getting better" 1 "Staying the same" 0	"Getting worse"
+recode q45 (999 = .a) (1 = 2) (2 = 1) (3 = 0)
+lab def q45_label 2	"Getting better" 1 "Staying the same" 0	"Getting worse" .a "NA"
 lab val q45 q45_label
 
 * q46 (rebuild, major, minor)
-recode q46 (999 = .) 
+recode q46 (999 = .a) 
 lab def q46_label 1	"Our healthcare system has so much wrong with it that we need to completely rebuild it." ///
 					2 "There are some good things in our healthcare system, but major changes are needed to make it work better." ///
-					3 "On the whole, the system works pretty well and only minor changes are necessary to make it work better."
+					3 "On the whole, the system works pretty well and only minor changes are necessary to make it work better." ///
+					.a "NA"
 lab val q46 q46_label
 
 * q47 (covid mamangement)
-recode q47 (999 = .) 
-lab def q47_label 4	"Excellent" 3 "Very good" 2	"Good" 1 "Fair" 0 "Poor" 
+recode q47 (999 = .a) 
+lab def q47_label 4	"Excellent" 3 "Very good" 2	"Good" 1 "Fair" 0 "Poor" .a "NA"
 lab val q47 q47_label
 
 * q48 (vignette 1)
-recode q48 (999 = .) 
-lab def q48_label 4	"Excellent" 3 "Very good" 2	"Good" 1 "Fair" 0 "Poor" 
+recode q48 (999 = .a) 
+lab def q48_label 4	"Excellent" 3 "Very good" 2	"Good" 1 "Fair" 0 "Poor" .a "NA"
 lab val q48 q48_label
 
 * q49 (vignette 2)
-recode q49 (999 = .) 
-lab def q49_label 4	"Excellent" 3 "Very good" 2	"Good" 1 "Fair" 0 "Poor" 
+recode q49 (999 = .a) 
+lab def q49_label 4	"Excellent" 3 "Very good" 2	"Good" 1 "Fair" 0 "Poor" .a "NA"
 lab val q49 q49_label
 
 * q50 (mother tongue)
-recode q50 (999 = .) 
-lab def q50_label 1	"Japanese" 2 "Chinese" 3 "Korean" 4 "Vietnamese" 5 "Tagalog" 6 "Spanish" 7 "English" 8 "Other"
+recode q50 (999 = .a) 
+lab def q50_label 1	"Japanese" 2 "Chinese" 3 "Korean" 4 "Vietnamese" 5 "Tagalog" 6 "Spanish" 7 "English" 8 "Other" .a "NA"
 lab val q50 q50_label
 
 * q51 (income)
-recode q51 (999 = .) 
+recode q51 (999 = .a) 
 lab def q51_label 1	"Less than 3 million yen" 2 "3 million-less than 4.8 million yen" 3 "4.8 million-less than 6.5 million yen" ///
-					4 "6.5 million-less than 8.5 million yen" 5 "8.5 million yen or over" 
+					4 "6.5 million-less than 8.5 million yen" 5 "8.5 million yen or over" .a "NA"
 lab val q51 q51_label
 
 * q52a_jp (political party)
@@ -646,6 +625,8 @@ recode q18_q19 (. = 7.5) if q19 == 3
 recode q18_q19 (. = 10) if q19 == 4 
 	
 list q18 q18_q19 q19 q20 q21 if q21 > q18_q19 & q21 < . 
+replace q21 = .a if q21 > q18_q19 & q21 < .
+
 *replace q21 = q18_q19 if q21 > q18_q19 & q21 < . // Ask todd what to do about discrepant info between q18 and q19
 
 list q20 q21 if q21 == 0 | q21 == 1
@@ -861,7 +842,6 @@ ren q50_other_original q50_other
 ren q53a_jp_other_original q53a_jp_other
 
 */
-
 
 *------------------------------------------------------------------------------*
 * Create weights
