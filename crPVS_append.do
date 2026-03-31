@@ -841,12 +841,12 @@ order m1_a m1_b  m1_2_a m1_2_b m1_2_c m1_2_d m1_2_e m1_2_f m1_2_g m1_c_ch_ro m1_
 		  m6_i m6_j m6_j_other m6_total m7 m8 m9 m10 m11 m12 phq2 phq2_cat phq9 phq9_cat visits_mental
 order q*, sequential
 order respondent_serial respondent_id mode country country_reg wave language language_other date ///
-	  int_length psu_id_for_svy_cmds weight 		  
+	  int_length psu_id_for_svy_cmds weight weight_mod
 
 * Label variables
 lab var respondent_serial "Respondent serial"
 lab var country "Country"
-lab var int_length "Interview length (minutes)" 
+lab var int_length "Interview length (minutes)"
 lab var date "Date of the interview"
 lab var respondent_id "Respondent ID"
 lab var language "Language"
@@ -854,6 +854,7 @@ lab var mode "Mode of data collection"
 lab var wave "Wave of data collection"
 lab var psu_id_for_svy_cmds "PSU ID"
 lab var weight  "Weight"
+capture lab var weight_mod "Modified weight: IPF raked on age, region, edu×gender (SO only)"
 lab var q1 "Q1. Respondent's еxact age"
 
 lab var q2 "Q2. Respondent's age group"
