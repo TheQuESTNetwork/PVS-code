@@ -506,22 +506,295 @@ label variable cell2 "CELL2. How many other mobile phone numbers do you have?"
 label variable int_length "Interview length"
 
 
-*Fixing weight var (per Todd's email 11/26/2024):
-**Calculate the current sum of the weights
+*------------------------------------------------------------------------------*
+* WEIGHT CONSTRUCTION
+* Date: March 2026
+*
+* Two sets of weights produced:
+*   1. weight_ipsos: Original Ipsos weights (raked on Region × Gender only),
+*      rescaled to sum to sample size
+*   2. weight: New KGHP weights (raked on Age × Region × Edu×Gender)
+*
+* Methodology follows Malawi (crPVS_cln_MW.do):
+*   Step 1: F2F design weights (correct regional non-proportionality)
+*   Step 2: Mode blending weights (CATI=phone owners, F2F=non-phone)
+*   Step 3: Combine into base weight
+*   Step 4: Normalise (mean = 1)
+*   Step 5: IPF raking to population benchmarks
+*   Step 6: Diagnostics and comparison with Ipsos weights
+*
+* Population benchmark sources:
+*   Region: Somaliland MoH/Ministry of Economic Planning 2024 projections
+*           (via Ipsos technical report, Table 1)
+*   Age:    UN World Population Prospects (Somalia, adults 18+)
+*   Gender: SLHDS 2020 (49% male, 51% female)
+*   Education: SLHDS 2020 (collapsed to 3 levels)
+*   Phone ownership: SLHDS 2020 (~75% household mobile ownership)
+*------------------------------------------------------------------------------*
+
+* Rescale original Ipsos weight so it sums to sample size (per Todd's email 11/26/2024)
 egen total_weight = total(weight)
- 
-**Rescale the weights so they sum to the sample size
-gen rescaled_weight = (weight / total_weight) * 2500
- 
-**Check that the rescaled weights sum to the sample size
-egen total_weight_rescaled = total(rescaled_weight)
-tab total_weight  
-tab total_weight_rescaled // to ensure the first sums to 2.1 million and the rescaled sums to 2500
-
-drop weight total_weight total_weight_rescaled
-
+gen rescaled_weight = (weight / total_weight) * _N
+drop weight total_weight
 rename rescaled_weight weight
-*rename CELL1 cell1
+
+tab country // confirm sample size (expect N=2,500)
+
+*---------- Create demographic variables for weighting ----------*
+
+** Gender: q3: 0=Male, 1=Female
+gen gender = 0 if q3==0
+replace gender = 1 if q3==1
+label define gender 0 "Male" 1 "Female"
+label values gender gender
+tab gender, m
+
+** Age (5 groups): derived from q2
+* q2: 1=18-29, 2=30-39, 3=40-49, 4=50-59, 5=60-69, 6=70-79, 7=80+
+gen age_5g = 0 if q2==1
+replace age_5g = 1 if q2==2
+replace age_5g = 2 if q2==3
+replace age_5g = 3 if q2==4
+replace age_5g = 4 if q2==5 | q2==6 | q2==7
+label define age_5g 0 "18-29" 1 "30-39" 2 "40-49" 3 "50-59" 4 "60+"
+label values age_5g age_5g
+tab age_5g, m
+
+** Region: derived from q4
+* q4 values confirmed from tab q4 output:
+*   22001 → Marodijeeh: 1,456,218  (29.99%)
+*   22002 → Togdheer:     860,061  (17.71%)
+*   22003 → Awdal:        931,953  (19.19%)
+*   22004 → Sanaag:       753,193  (15.51%)
+*   22005 → Sahil:        305,916  ( 6.30%)
+*   22006 → Sool:         548,799  (11.30%)
+* Population estimates from Ipsos/MoH 2024 (total = 4,856,142)
+tab q4
+
+gen Region = .
+replace Region = 0 if q4==22001  // Marodijeeh
+replace Region = 1 if q4==22002  // Togdheer
+replace Region = 2 if q4==22003  // Awdal
+replace Region = 3 if q4==22004  // Sanaag
+replace Region = 4 if q4==22005  // Sahil
+replace Region = 5 if q4==22006  // Sool
+label define Region 0 "Marodijeeh" 1 "Togdheer" 2 "Awdal" 3 "Sanaag" 4 "Sahil" 5 "Sool"
+label values Region Region
+tab Region, m
+tab Region mode, m  // verify F2F regional distribution
+
+** Education (3 groups): derived from q8
+* q8 values confirmed from crPVS_der.do:
+*   22001, 22002 → None (no formal education)
+*   22003, 22004 → Primary
+*   22005 → Secondary
+*   22006 → Post-secondary/Tertiary
+* SLHDS 2020: No ed=78.4%, Primary=9.4%, Secondary=6.4%, Tertiary=5.8%
+* Collapsed: None/Primary=87.8%, Secondary=6.4%, Tertiary+=5.8%
+tab q8
+
+gen education_3g = .
+replace education_3g = 0 if inlist(q8, 22001, 22002, 22003, 22004)  // None or Primary
+replace education_3g = 1 if q8==22005                                // Secondary
+replace education_3g = 2 if q8==22006                                // Tertiary+
+* Impute refused/missing q8 to modal category (None/Primary = 87.8% of pop)
+* so ipfweight does not drop these observations (N=2 in current data)
+replace education_3g = 0 if missing(education_3g)
+label define education_3g 0 "None or primary" 1 "Secondary" 2 "Tertiary+"
+label values education_3g education_3g
+tab education_3g, m
+
+** Joint distribution: education × gender (for raking)
+gen edu_gender = 0 if education_3g==0 & gender==1
+replace edu_gender = 1 if education_3g==1 & gender==1
+replace edu_gender = 2 if education_3g==2 & gender==1
+replace edu_gender = 3 if education_3g==0 & gender==0
+replace edu_gender = 4 if education_3g==1 & gender==0
+replace edu_gender = 5 if education_3g==2 & gender==0
+label define edu_gender 0 "None/Primary, Female" 1 "Secondary, Female" ///
+	2 "Tertiary+, Female" 3 "None/Primary, Male" 4 "Secondary, Male" ///
+	5 "Tertiary+, Male"
+label values edu_gender edu_gender
+tab edu_gender, m
+
+** Cross-tabs to inspect sample discrepancies
+tab gender Region, cell
+tab age_5g Region, cell
+tab education_3g gender, cell
+
+
+*********************************************************
+* STEP 1: Design weights for F2F (CAPI)
+* F2F targeted villages with zero/poor network coverage
+* NOT proportional to population — must correct
+* Note: No F2F interviews were conducted in Sool (Region==5)
+* Population shares rescaled to 5 F2F regions (excl. Sool):
+*   Marodijeeh: 29.99/88.70 = 33.81%
+*   Togdheer:   17.71/88.70 = 19.97%
+*   Awdal:      19.19/88.70 = 21.63%
+*   Sanaag:     15.51/88.70 = 17.49%
+*   Sahil:       6.30/88.70 =  7.10%
+*********************************************************
+count if mode==2
+local n_f2f = r(N)
+
+count if mode==2 & Region==0
+local n_marodijeeh = r(N)
+count if mode==2 & Region==1
+local n_togdheer = r(N)
+count if mode==2 & Region==2
+local n_awdal = r(N)
+count if mode==2 & Region==3
+local n_sanaag = r(N)
+count if mode==2 & Region==4
+local n_sahil = r(N)
+
+di "F2F counts — Marodijeeh: `n_marodijeeh'  Togdheer: `n_togdheer'  Awdal: `n_awdal'  Sanaag: `n_sanaag'  Sahil: `n_sahil'  Total: `n_f2f'"
+
+gen dw_f2f = .
+replace dw_f2f = 0.3381 / (`n_marodijeeh' / `n_f2f') if mode==2 & Region==0
+replace dw_f2f = 0.1997 / (`n_togdheer'   / `n_f2f') if mode==2 & Region==1
+replace dw_f2f = 0.2163 / (`n_awdal'      / `n_f2f') if mode==2 & Region==2
+replace dw_f2f = 0.1749 / (`n_sanaag'     / `n_f2f') if mode==2 & Region==3
+replace dw_f2f = 0.0710 / (`n_sahil'      / `n_f2f') if mode==2 & Region==4
+
+* Sool (Region==5): CATI only, no F2F interviews conducted
+* CATI: population-proportionate sampling → design weight = 1
+replace dw_f2f = 1 if mode==1
+
+assert !missing(dw_f2f)
+
+*********************************************************
+* STEP 2: Blending weights by mode
+* Phone ownership: ~75% (SLHDS 2020)
+* CATI frame  = phone owners (75% of adult population)
+* F2F frame   = non-phone owners (25% of adult population)
+*********************************************************
+local phone_own     = 0.75
+local non_phone_own = 0.25
+
+count if mode==1
+local n_cati = r(N)
+count if mode==2
+local n_f2f = r(N)
+count
+local n_total = r(N)
+
+scalar cati_share = `n_cati'  / `n_total'
+scalar f2f_share  = `n_f2f'   / `n_total'
+
+gen blend_wgt = .
+replace blend_wgt = `phone_own'     / cati_share if mode==1
+replace blend_wgt = `non_phone_own' / f2f_share  if mode==2
+
+assert !missing(blend_wgt)
+
+*********************************************************
+* STEP 3: Combine for base weight
+*********************************************************
+gen base_wgt = dw_f2f * blend_wgt
+
+*********************************************************
+* STEP 4: Normalise base weight
+* Rescale so mean = 1 (weights sum to total sample size)
+*********************************************************
+sum base_wgt
+gen base_wgt_norm = base_wgt / r(mean)
+
+*********************************************************
+* STEP 5: IPF raking to population benchmarks
+* Dimensions: age_5g (5), Region (6), edu_gender (6)
+*
+* Benchmarks (percentages):
+*   age_5g:  18-29=43, 30-39=24, 40-49=15, 50-59=10, 60+=8
+*            Source: UN World Population Prospects (Somalia, adults 18+)
+*
+*   Region (in order 0-5):
+*     0=Marodijeeh=29.99, 1=Togdheer=17.71, 2=Awdal=19.19,
+*     3=Sanaag=15.51, 4=Sahil=6.30, 5=Sool=11.30
+*            Source: Somaliland MoH/Min. of Econ. Planning 2024
+*
+*   edu_gender (education × gender, assuming independence):
+*     Education (SLHDS 2020, 3g): None/Primary=87.8%, Secondary=6.4%, Tertiary+=5.8%
+*     Gender (SLHDS 2020): Female=51%, Male=49%
+*     Cells: None/Primary×Female=44.78, Secondary×Female=3.26, Tertiary+×Female=2.96,
+*            None/Primary×Male=43.02,   Secondary×Male=3.14,   Tertiary+×Male=2.84
+*     Note: Assumes independence between education and gender.
+*           Males likely have somewhat higher education in Somaliland —
+*           refine if better gender-specific education data available.
+*********************************************************
+ipfweight age_5g Region edu_gender, gen(weight_mod) startwgt(base_wgt_norm) ///
+	val(43 24 15 10 8 ///
+		29.99 17.71 19.19 15.51 6.30 11.30 ///
+		44.78 3.26 2.96 43.02 3.14 2.84) ///
+	maxit(50) tolerance(0.005) upthreshold(5)
+
+*********************************************************
+* STEP 6: DIAGNOSTICS
+*********************************************************
+* Modified weight distribution
+di _n "=== MODIFIED WEIGHT (weight_mod) DISTRIBUTION ==="
+sum weight_mod, detail
+
+* Ipsos weight distribution
+di _n "=== IPSOS WEIGHT (weight) DISTRIBUTION ==="
+sum weight, detail
+
+* Check by mode — F2F should have higher avg weight given smaller sample
+di _n "=== WEIGHTS BY MODE ==="
+di "Modified weight by mode:"
+tab mode, sum(weight_mod)
+di "Ipsos weight by mode:"
+tab mode, sum(weight)
+
+* Flag extreme weights (> 5x mean is a common threshold)
+sum weight_mod
+gen extreme_wgt = (weight_mod > 5 * r(mean))
+tab extreme_wgt mode
+drop extreme_wgt
+
+* Verify weighted marginals match population targets
+di _n "=== VERIFY MODIFIED WEIGHT MARGINALS ==="
+foreach var of varlist age_5g Region edu_gender {
+	di _n "--- `var' (weight_mod) ---"
+	tab `var' [iweight=weight_mod]
+}
+
+*********************************************************
+* STEP 7: COMPARE MODIFIED vs IPSOS WEIGHTS
+*********************************************************
+di _n "=== COMPARISON: weight_mod vs weight (Ipsos) ==="
+corr weight_mod weight
+
+* Compare weighted distributions on key dimensions
+foreach var of varlist age_5g Region edu_gender gender {
+	di _n "--- `var' ---"
+	di "Unweighted:"
+	tab `var'
+	di "Ipsos weight:"
+	tab `var' [iweight=weight]
+	di "Modified weight:"
+	tab `var' [iweight=weight_mod]
+}
+
+* Compare weighted means of key outcome variables
+* Uncomment and adjust variable names as needed:
+/*
+foreach var of varlist q9 q42 q43 q45 {
+	di _n "--- `var' ---"
+	mean `var'
+	mean `var' [pweight=weight]
+	mean `var' [pweight=weight_mod]
+}
+*/
+
+* Drop intermediate weighting variables
+drop dw_f2f blend_wgt base_wgt base_wgt_norm
+drop gender age_5g Region education_3g edu_gender
+
+* Reorder variables
+order q*, sequential
+order respondent_id weight weight_mod respondent_serial mode country
 
 *------------------------------------------------------------------------------*
 
