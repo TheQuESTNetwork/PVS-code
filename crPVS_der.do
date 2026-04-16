@@ -642,7 +642,7 @@ recode insur_type_universal (.a = 0) if q7a_ch !=1 & q7b_ch !=1 & ///
 										q7j_ch != 1 & q7h_ch == 1
 										 
 *removing these from finalized dataset (confirm if they should be kept in)
-drop q7a_ch q7b_ch q7c_ch q7d_ch q7e_ch q7f_ch q7g_ch q7h_ch q7i_ch q7j_ch
+*drop q7a_ch q7b_ch q7c_ch q7d_ch q7e_ch q7f_ch q7g_ch q7h_ch q7i_ch q7j_ch
 			
 replace insur_type_universal = .a if !inlist(country, 8, 11, 14, 15, 17, 25) //LW: here just to make sure the countries that don't have universal coverage systems are ".a"
 
