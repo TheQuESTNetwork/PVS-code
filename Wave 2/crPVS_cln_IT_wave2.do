@@ -38,7 +38,7 @@ usual_type usual_reason usual_quality visits visits_cat last_type_own last_type_
 last_sched last_sched_time last_qual last_skills last_supplies last_respect last_know last_explain last_decisions ///
 last_visit_rate last_wait_rate last_courtesy last_sched_rate last_promote phc_women phc_child phc_chronic phc_mental ///
 conf_sick conf_afford conf_getafford conf_opinion qual_public qual_private system_outlook system_reform covid_manage ///
-vignette_good vignette_poor minority income
+vignette_good vignette_poor
 
 *------------------------------------------------------------------------------*
 * Rename some variables, and some recoding if variable will be dropped 
@@ -104,6 +104,10 @@ recode minority (1 = 0) (2 = 1), gen(minority_it)
 lab def minority 0 "Minority group" 1 "Majority group"
 lab val minority minority 
 drop minority
+
+replace income = .r if q51 == .r
+label define incomlbl .r "Refused", add
+label values income incomlbl
 
 rename income income_it
 
@@ -215,7 +219,7 @@ label define q24lbl ///
             2 "Follow-up care for a longstanding illness or chronic disease such as hypertension or diabetes. This may include mental health conditions." ///
             3 "Preventive care or a visit to check on your health, such as an annual check-up, antenatal care, or vaccination." ///
             4 "Other (specify)" ///
-			.a "NA", add
+			.a "NA", modify
 lab values q24 q24lbl
 *------------------------------------------------------------------------------*
 * Fix labels
@@ -282,7 +286,7 @@ ipacheckspecifyrecode using "$in_out/Input/specifyrecode_inputs/specifyrecode_in
 
 *------------------------------------------------------------------------------*/
 *dropping derived vars that weren't actually categorized/ or that we can just use the derived variable code (no new code)
-drop urban insured education usual_type_own usual_type_lvl last_type_own last_type_lvl age qual_private qual_public age_cat gender region health health_mental health_chronic activation usual_source usual_type usual_reason usual_quality visits visits_cat last_type last_reason last_sched last_sched_time last_qual last_skills last_supplies last_respect last_know last_explain last_decisions last_visit_rate last_wait_rate last_courtesy last_sched_rate last_promote phc_women phc_child phc_chronic phc_mental conf_sick conf_afford conf_getafford conf_opinion system_outlook system_reform covid_manage vignette_poor vignette_good
+* drop urban insured education usual_type_own usual_type_lvl last_type_own last_type_lvl age qual_private qual_public age_cat gender region health health_mental health_chronic activation usual_source usual_type usual_reason usual_quality visits visits_cat last_type last_reason last_sched last_sched_time last_qual last_skills last_supplies last_respect last_know last_explain last_decisions last_visit_rate last_wait_rate last_courtesy last_sched_rate last_promote phc_women phc_child phc_chronic phc_mental conf_sick conf_afford conf_getafford conf_opinion system_outlook system_reform covid_manage vignette_poor vignette_good
 
 * Reorder variables
 	order q*, sequential
