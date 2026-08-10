@@ -778,7 +778,7 @@ recode usual_type_own (.a = 0) if q14_jp == 1
 recode usual_type_own (.a = 1) if q14_jp == 2 
 recode usual_type_own (.a = 2) if q14_jp == 3
 	
-* usual type level			  
+* usual type level - version 1			  
 recode q15 (1001 1002 1003 1005 1007 3001 3002 3003 3006 3007 3008 /// 
 			3011 5012 5014 5015 5016 5017 5018 5020 9023 9024 9025 9026 9027 9028 9031 9032 9033 9036 ///
 			2080 2085 2090 7001 7002 7008 7040 7043 7045 7047 7048 8001 10092 10094 10096 10098 10100 10102 10104 ///
@@ -793,33 +793,128 @@ recode q15 (1001 1002 1003 1005 1007 3001 3002 3003 3006 3007 3008 ///
 		   20133 20134 20138 20140 21001 21002 21003 2109 2111 2115 7106 7109 7110 7114 7115 10107 10112 10113 ///
 		   10115 23001 23002 23003 23004 23005 23016 23017 6001 6002 6003 6008 24005 24006 25002 25003 = 1 "Secondary (or higher)") ///
 		   (.a 18106 18107 18108 18109 18110 18111 18112 18113 18115 18116 18117 18996 25006 = .a "NA") ///
-		   (3995 9995 12995 4995 14005 18995 20995 21008 .r 3997 4997 5997 9997 23015 12007 24007 19008 = .r "Refused"), gen(usual_type_lvl)
+		   (3995 9995 12995 4995 14005 18995 20995 21008 .r 3997 4997 5997 9997 23015 12007 24007 19008 = .r "Refused"), gen(usual_type_lvl_v1)
 
-		   recode usual_type_lvl (.a = 0) if inlist(q14_q15a_la,2,4,6) | ///
+		   recode usual_type_lvl_v1 (.a = 0) if inlist(q14_q15a_la,2,4,6) | ///
 								  inlist(q14_q15b_la,2,4,6)
-recode usual_type_lvl (.a = 1) if q14_q15a_la == 1 | q14_q15a_la == 3 | q14_q15b_la == 1 | q14_q15b_la == 3
+recode usual_type_lvl_v1 (.a = 1) if q14_q15a_la == 1 | q14_q15a_la == 3 | q14_q15b_la == 1 | q14_q15b_la == 3
 
-recode usual_type_lvl (.a . .r = 0) if (q15a_gr == 1 | q15a_gr == 2) & country == 18
+recode usual_type_lvl_v1 (.a . .r = 0) if (q15a_gr == 1 | q15a_gr == 2) & country == 18
 
-recode usual_type_lvl (.a . = 1) if (q15a_gr == 3 | q15a_gr == 4 | q15a_gr == 6) & country == 18
+recode usual_type_lvl_v1 (.a . = 1) if (q15a_gr == 3 | q15a_gr == 4 | q15a_gr == 6) & country == 18
 
-recode usual_type_lvl (. = 0) if q15a_so == 2 | q15a_so == 3 | q15b_so == 2 | q15b_so == 3 | q15b_so == 4 | q15c_so  == 1 ///
+recode usual_type_lvl_v1 (. = 0) if q15a_so == 2 | q15a_so == 3 | q15b_so == 2 | q15b_so == 3 | q15b_so == 4 | q15c_so  == 1 ///
 								  | q15c_so  == 2 | q15c_so  == 3 | q15c_so  == 4 | q15c_so  == 6
 
-recode usual_type_lvl (. = 1) if q15a_so == 1 | q15b_so == 1 | q15c_so  == 5 | q15c_so == 7
-recode usual_type_lvl (. = .a) if insured == 0 & country == 22
-recode usual_type_lvl (. = .a) if inlist(country, 2, 6, 7, 10, 17, 22, 23)
+recode usual_type_lvl_v1 (. = 1) if q15a_so == 1 | q15b_so == 1 | q15c_so  == 5 | q15c_so == 7
+recode usual_type_lvl_v1 (. = .a) if insured == 0 & country == 22
+recode usual_type_lvl_v1 (. = .a) if inlist(country, 2, 6, 7, 10, 17, 22, 23)
+
+* usual type level - version2 -- this is modified by Todd's revision, ask him first before change them
+
+gen usual_type_lvl_v2 = .a
+
+* Country 1: Ecuador (Upper-middle income)
+replace usual_type_lvl_v2 = 1 if country==1 & !missing(q15)
+replace usual_type_lvl_v2 = 0 if country==1 & inlist(q15, 1001, 1002, 1005, 1007)
+
+* Country 2: Colombia (Upper-middle income)
+replace usual_type_lvl_v2 = 1 if country==2 & !missing(q15)
+replace usual_type_lvl_v2 = 0 if country==2 & inlist(q15, 2080, 2085, 2090, 2101, 2108)
+
+* Country 3: Ethiopia (Low income)
+replace usual_type_lvl_v2 = 1 if country==3 & !missing(q15)
+replace usual_type_lvl_v2 = 0 if country==3 & inlist(q15, 3001, 3002, 3003, 3006, 3007, 3011)
+
+* Country 4: India (Lower-middle income)
+replace usual_type_lvl_v2 = 1 if country==4 & !missing(q15)
+replace usual_type_lvl_v2 = 0 if country==4 & inlist(q15, 4067, 4068, 4072, 4073)
+
+* Country 5: Kenya (Lower-middle income)
+replace usual_type_lvl_v2 = 1 if country==5 & !missing(q15)
+replace usual_type_lvl_v2 = 0 if country==5 & inlist(q15, 5012, 5014, 5015, 5016, 5017, 5020)
+
+* Country 6: Malawi (Low income)
+replace usual_type_lvl_v2 = 1 if country==6 & !missing(q15)
+replace usual_type_lvl_v2 = 0 if country==6 & inlist(q15, 6004, 6005, 6007, 6010)
+
+* Country 7: Peru (Upper-middle income)
+replace usual_type_lvl_v2 = 1 if country==7 & !missing(q15)
+replace usual_type_lvl_v2 = 0 if country==7 & inlist(q15, 7001, 7002, 7040, 7043, 7045, 7048, 7102, 7103, 7108)
+
+* Country 9: South Africa (Upper-middle income)
+replace usual_type_lvl_v2 = 1 if country==9 & !missing(q15)
+replace usual_type_lvl_v2 = 0 if country==9 & inlist(q15, 9023, 9024, 9025, 9026, 9027, 9028, 9031, 9036)
+
+* Country 10: Uruguay (High income)
+replace usual_type_lvl_v2 = 1 if country==10 & !missing(q15)
+replace usual_type_lvl_v2 = 0 if country==10 & inlist(q15, 10092, 10094, 10096, 10098, 10100, 10102, 10104, 10107, 10108)
+
+* Country 11: Lao PDR (Lower-middle income) - Q15 uses different variable
+replace usual_type_lvl_v2 = 1 if country==11 & !missing(q14_q15a_la)
+replace usual_type_lvl_v2 = 0 if country==11 & inlist(q14_q15a_la, 2, 4)
+
+* Country 13: Mexico (Upper-middle income)
+replace usual_type_lvl_v2 = 1 if country==13 & !missing(q15)
+replace usual_type_lvl_v2 = 0 if country==13 & inlist(q15, 13001, 13002, 13005, 13008, 13009, 13012, 13013, 13015, 13017)
+
+* Country 14: Italy (High income)
+replace usual_type_lvl_v2 = 1 if country==14 & !missing(q15)
+replace usual_type_lvl_v2 = 0 if country==14 & q15 == 14001
+
+* Country 16: Argentina (Mendoza) (Upper-middle income)
+replace usual_type_lvl_v2 = 1 if country==16 & !missing(q15)
+replace usual_type_lvl_v2 = 0 if country==16 & inlist(q15, 16001, 16003, 16004, 16005, 16006)
+
+* Country 17: United Kingdom (High income)
+replace usual_type_lvl_v2 = 1 if country==17 & !missing(q15)
+replace usual_type_lvl_v2 = 0 if country==17 & inlist(q15, 17001, 17002, 17003)
+
+* Country 18: Greece (High income) - SPECIAL RULE for medical offices
+replace usual_type_lvl_v2 = 1 if country==18 & !missing(q15)
+replace usual_type_lvl_v2 = 0 if country==18 & inlist(q15, 18106, 18107, 18108)
+replace usual_type_lvl_v2 = 0 if country==18 & inlist(q15, 18111, 18115) & inlist(q15a_gr, 1, 2)
+
+* Country 19: Romania (Upper-middle income)
+replace usual_type_lvl_v2 = 1 if country==19 & !missing(q15)
+replace usual_type_lvl_v2 = 0 if country==19 & inlist(q15, 19001, 19006, 19007, 19120)
+
+* Country 20: Nigeria (Lower-middle income)
+replace usual_type_lvl_v2 = 1 if country==20 & !missing(q15)
+replace usual_type_lvl_v2 = 0 if country==20 & inlist(q15, 20131, 20132, 20135, 20136, 20139)
+
+* Country 21: China (Upper-middle income)
+replace usual_type_lvl_v2 = 1 if country==21 & !missing(q15)
+replace usual_type_lvl_v2 = 0 if country==21 & inlist(q15, 21004, 21005, 21006, 21007)
+
+* Country 22: Somaliland (Low income) - Q15 uses different variable
+replace usual_type_lvl_v2 = 1 if country==22 & (!missing(q15a_so) | !missing(q15b_so) | !missing(q15c_so))
+replace usual_type_lvl_v2 = 0 if country==22 & (inlist(q15a_so, 2, 3) | q15b_so==2)
+
+* Country 23: Nepal (Low income)
+replace usual_type_lvl_v2 = 1 if country==23 & !missing(q15)
+replace usual_type_lvl_v2 = 0 if country==23 & inlist(q15, 23006, 23007, 23009, 23010, 23011, 23014)
+
+lab def usual_type_lvl_v2 0 "Primary" 1 "Secondary (or higher)" .a NA .r Refused, replace
+lab val usual_type_lvl_v2 usual_type_lvl_v2
+
+
+* Country 8: Japan  --  excluded (facility type doesn't distinguish PHC)
+* Country 12: United States  --  excluded
+* Country 15: South Korea  --  excluded
+* Country 24: Germany  --  excluded
+* Country 25: Switzerland  --  excluded
 		   
 * usual_type - ownership and level 
 gen usual_type = . 
-recode usual_type (. = 0) if usual_type_own == 0 & usual_type_lvl == 0
-recode usual_type (. = 1) if usual_type_own == 0 & usual_type_lvl == 1
-recode usual_type (. = 2) if usual_type_own == 1 & usual_type_lvl == 0
-recode usual_type (. = 3) if usual_type_own == 1 & usual_type_lvl == 1
-recode usual_type (. = 4) if usual_type_own == 2 & usual_type_lvl == 0
-recode usual_type (. = 5) if usual_type_own == 2 & usual_type_lvl == 1
-recode usual_type (. = .a) if usual_type_own == .a | usual_type_lvl == .a
-recode usual_type (. = .r) if usual_type_own == .r | usual_type_lvl == .r
+recode usual_type (. = 0) if usual_type_own == 0 & usual_type_lvl_v2 == 0
+recode usual_type (. = 1) if usual_type_own == 0 & usual_type_lvl_v2 == 1
+recode usual_type (. = 2) if usual_type_own == 1 & usual_type_lvl_v2 == 0
+recode usual_type (. = 3) if usual_type_own == 1 & usual_type_lvl_v2 == 1
+recode usual_type (. = 4) if usual_type_own == 2 & usual_type_lvl_v2 == 0
+recode usual_type (. = 5) if usual_type_own == 2 & usual_type_lvl_v2 == 1
+recode usual_type (. = .a) if usual_type_own == .a | usual_type_lvl_v2 == .a
+recode usual_type (. = .r) if usual_type_own == .r | usual_type_lvl_v2 == .r
 lab def fac_own_lvl 0 "Public primary" 1 "Public secondary (or higher)" 2 "Private primary" /// 
 					3 "Private secondary (or higher)" 4 "Other primary" 5 "Other secondary (or higher)" ///
 					.a NA .r Refused, replace
@@ -859,10 +954,13 @@ recode last_type_own (.a = 0) if country == 10 & q32_uy == 1
 recode last_type_own (.a = 1) if country == 10 & q32_uy == 2
 recode last_type_own (.a = 2) if country == 10 & q32_uy == 5
 
-	* Wave 2: 
-	recode last_type_own (.a = 0) if p32_uru == 1
-	recode last_type_own (.a = 1) if p32_uru == 3
-	recode last_type_own (.a = 2) if p32_uru == 5
+	* Wave 2: Modified by Todd
+	*recode last_type_own (.a = 0) if p32_uru == 1
+	*recode last_type_own (.a = 1) if p32_uru == 3
+	*recode last_type_own (.a = 2) if p32_uru == 5
+	recode last_type_own (.a = 0) if country==10 & q32_co_pe_uy==1
+	recode last_type_own (.a = 1) if country==10 & q32_co_pe_uy==5
+	recode last_type_own (.a = 2) if country==10 & inlist(q32_co_pe_uy, 4, 7)
 
 *Laos
 recode last_type_own (.a = 0) if q32_la == 1 | q33 == 11002
@@ -929,7 +1027,7 @@ recode last_type_own (.a = .d) if q32_de == .d
 replace last_type_own = .a if q18_q19 == 0 & last_type_own != .a
 								  
 							  
-* last type level							  
+* last type level - version 1							  
 recode q33 (1001 1002 1005 1007 3001 3002 3003 3006 3007 3008 3011 5012 5014 5015 5016 5017 5018 5020 9023 ///
 			9024 9025 9026 9027 9028 9031 9032 9033 9036 2080 2085 2090 7001 7002 7040 7043 7045 7047 7048 8001 10092 ///
 			10094 10096 10100 10102 10104 11002 11003 14001 14002 13001 13002 13005 13008 13009 13012 13013 13015 13017 13018 ///
@@ -944,33 +1042,126 @@ recode q33 (1001 1002 1005 1007 3001 3002 3003 3006 3007 3008 3011 5012 5014 501
 		   19127 19130 19123 20133 20134 20138 20140 21001 21002 21003 22001 22004 2109 2111 2115 7106 7109 7110 7114 ///
 		   7115 10107 10112 10113 10115 23001 23002 23003 23004 23005 23016 23017 6001 6002 6003 6008 24005 24006 25002 25003 = 1 "Secondary (or higher)") ///
 		   (.a 18106 18107 18108 18109 18110 18111 18112 18113 18115 18116 18117 = .a "NA") ///
-		   (.r 3995 9995 11995 12995 12996 13995 4995 14005 18995 20995 21008 22006 3997 5997 9997 23015 6010 24007 25006 19008 = .r "Refused"), gen(last_type_lvl)
+		   (.r 3995 9995 11995 12995 12996 13995 4995 14005 18995 20995 21008 22006 3997 5997 9997 23015 6010 24007 25006 19008 = .r "Refused"), gen(last_type_lvl_v1)
 
 * Greece recode
-recode last_type_lvl (.a = 0) if q33a_gr == 1 | q33a_gr == 2
-recode last_type_lvl (.a = 1) if q33a_gr == 3 | q33a_gr == 4 | q33a_gr == 6		   
+recode last_type_lvl_v1 (.a = 0) if q33a_gr == 1 | q33a_gr == 2
+recode last_type_lvl_v1 (.a = 1) if q33a_gr == 3 | q33a_gr == 4 | q33a_gr == 6		   
 		   
 * Somaliland recode
-recode last_type_lvl (.a = 0) if q33a_gr == 1 | q33a_gr == 2
-recode last_type_lvl (.a = 1) if q33a_gr == 3 | q33a_gr == 4 | q33a_gr == 6
+recode last_type_lvl_v1 (.a = 0) if q33a_gr == 1 | q33a_gr == 2
+recode last_type_lvl_v1 (.a = 1) if q33a_gr == 3 | q33a_gr == 4 | q33a_gr == 6
 
 * 03-04-2026 LX: missingness recode, already checking using q18 and q19
-recode last_type_lvl (. = .r) if inlist(country,2,4,7,10)
-recode last_type_lvl (. = .a) if inlist(country,8,17)
-recode last_type_lvl (. = .r) if country==3&q18==2
-recode last_type_lvl (. = .d) if country==3&q18==.d
+recode last_type_lvl_v1 (. = .r) if inlist(country,2,4,7,10)
+recode last_type_lvl_v1 (. = .a) if inlist(country,8,17)
+recode last_type_lvl_v1 (. = .r) if country==3&q18==2
+recode last_type_lvl_v1 (. = .d) if country==3&q18==.d
+
+* last type level version2 -- this is modified by Todd's revision, ask him first before change them
+gen last_type_lvl_v2  = .a
+
+* Country 1: Ecuador (Upper-middle income)
+replace last_type_lvl_v2  = 1 if country==1 & !missing(q33)
+replace last_type_lvl_v2  = 0 if country==1 & inlist(q33, 1001, 1002, 1005, 1007)
+
+* Country 2: Colombia (Upper-middle income)
+replace last_type_lvl_v2  = 1 if country==2 & !missing(q33)
+replace last_type_lvl_v2  = 0 if country==2 & inlist(q33, 2080, 2085, 2090, 2101, 2108)
+
+* Country 3: Ethiopia (Low income)
+replace last_type_lvl_v2  = 1 if country==3 & !missing(q33)
+replace last_type_lvl_v2  = 0 if country==3 & inlist(q33, 3001, 3002, 3003, 3006, 3007, 3011)
+
+* Country 4: India (Lower-middle income)
+replace last_type_lvl_v2  = 1 if country==4 & !missing(q33)
+replace last_type_lvl_v2  = 0 if country==4 & inlist(q33, 4067, 4068, 4072, 4073)
+
+* Country 5: Kenya (Lower-middle income)
+replace last_type_lvl_v2  = 1 if country==5 & !missing(q33)
+replace last_type_lvl_v2  = 0 if country==5 & inlist(q33, 5012, 5014, 5015, 5016, 5017, 5020)
+
+* Country 6: Malawi (Low income)
+replace last_type_lvl_v2  = 1 if country==6 & !missing(q33)
+replace last_type_lvl_v2  = 0 if country==6 & inlist(q33, 6004, 6005, 6007)
+
+* Country 7: Peru (Upper-middle income)
+replace last_type_lvl_v2  = 1 if country==7 & !missing(q33)
+replace last_type_lvl_v2  = 0 if country==7 & inlist(q33, 7001, 7002, 7040, 7043, 7045, 7048, 7102, 7103, 7108)
+
+* Country 9: South Africa (Upper-middle income)
+replace last_type_lvl_v2  = 1 if country==9 & !missing(q33)
+replace last_type_lvl_v2  = 0 if country==9 & inlist(q33, 9023, 9024, 9025, 9026, 9027, 9028, 9031, 9036)
+
+* Country 10: Uruguay (High income)
+replace last_type_lvl_v2  = 1 if country==10 & !missing(q33)
+replace last_type_lvl_v2  = 0 if country==10 & inlist(q33, 10092, 10094, 10096, 10098, 10100, 10102, 10104, 10107, 10108)
+
+* Country 11: Lao PDR (Lower-middle income)
+replace last_type_lvl_v2  = 1 if country==11 & !missing(q33)
+replace last_type_lvl_v2  = 0 if country==11 & inlist(q33, 11002, 11003)
+
+* Country 13: Mexico (Upper-middle income)
+replace last_type_lvl_v2  = 1 if country==13 & !missing(q33)
+replace last_type_lvl_v2  = 0 if country==13 & inlist(q33, 13001, 13002, 13005, 13008, 13009, 13012, 13013, 13015, 13017)
+
+* Country 14: Italy (High income)
+replace last_type_lvl_v2  = 1 if country==14 & !missing(q33)
+replace last_type_lvl_v2  = 0 if country==14 & q33 == 14001
+
+* Country 16: Argentina (Mendoza) (Upper-middle income)
+replace last_type_lvl_v2  = 1 if country==16 & !missing(q33)
+replace last_type_lvl_v2  = 0 if country==16 & inlist(q33, 16001, 16003, 16004, 16005)
+
+* Country 17: United Kingdom (High income)
+replace last_type_lvl_v2  = 1 if country==17 & !missing(q33)
+replace last_type_lvl_v2  = 0 if country==17 & inlist(q33, 17001, 17002, 17003)
+
+* Country 18: Greece (High income)
+replace last_type_lvl_v2  = 1 if country==18 & !missing(q33)
+replace last_type_lvl_v2  = 0 if country==18 & inlist(q33, 18106, 18107, 18108)
+replace last_type_lvl_v2  = 0 if country==18 & inlist(q33, 18111, 18115) & inlist(q33a_gr, 1, 2)
+
+* Country 19: Romania (Upper-middle income)
+replace last_type_lvl_v2  = 1 if country==19 & !missing(q33)
+replace last_type_lvl_v2  = 0 if country==19 & inlist(q33, 19001, 19006, 19007, 19120)
+
+* Country 20: Nigeria (Lower-middle income)
+replace last_type_lvl_v2  = 1 if country==20 & !missing(q33)
+replace last_type_lvl_v2  = 0 if country==20 & inlist(q33, 20131, 20132, 20135, 20136, 20139)
+
+* Country 21: China (Upper-middle income)
+replace last_type_lvl_v2  = 1 if country==21 & !missing(q33)
+replace last_type_lvl_v2  = 0 if country==21 & inlist(q33, 21004, 21005, 21006, 21007)
+
+* Country 22: Somaliland (Low income) - Q15 uses different variable
+replace last_type_lvl_v2  = 1 if country==22 & !missing(q33)
+replace last_type_lvl_v2  = 0 if country==22 & inlist(q33, 22002, 22003, 22005)
+
+* Country 23: Nepal (Low income)
+replace last_type_lvl_v2  = 1 if country==23 & !missing(q33)
+replace last_type_lvl_v2  = 0 if country==23 & inlist(q33, 23006, 23007, 23009, 23010, 23011, 23014)
+
+lab def last_type_lvl_v2 0 "Primary" 1 "Secondary (or higher)" .a NA .r Refused, replace
+lab val last_type_lvl_v2 last_type_lvl_v2
+
+* Country 8: Japan  --  excluded (facility type doesn't distinguish PHC)
+* Country 12: United States  --  excluded
+* Country 15: South Korea  --  excluded
+* Country 24: Germany  --  excluded
+* Country 25: Switzerland  --  excluded
 
 		      
 * last_type - ownership and level
 gen last_type = . 
-recode last_type (. = 0) if last_type_own == 0 & last_type_lvl == 0
-recode last_type (. = 1) if last_type_own == 0 & last_type_lvl == 1
-recode last_type (. = 2) if last_type_own == 1 & last_type_lvl == 0
-recode last_type (. = 3) if last_type_own == 1 & last_type_lvl == 1
-recode last_type (. = 4) if last_type_own == 2 & last_type_lvl == 0
-recode last_type (. = 5) if last_type_own == 2 & last_type_lvl == 1
-recode last_type (. = .a) if last_type_own == .a | last_type_lvl == .a
-recode last_type (. = .r) if last_type_own == .r | last_type_lvl == .r
+recode last_type (. = 0) if last_type_own == 0 & last_type_lvl_v2 == 0
+recode last_type (. = 1) if last_type_own == 0 & last_type_lvl_v2 == 1
+recode last_type (. = 2) if last_type_own == 1 & last_type_lvl_v2 == 0
+recode last_type (. = 3) if last_type_own == 1 & last_type_lvl_v2 == 1
+recode last_type (. = 4) if last_type_own == 2 & last_type_lvl_v2 == 0
+recode last_type (. = 5) if last_type_own == 2 & last_type_lvl_v2 == 1
+recode last_type (. = .a) if last_type_own == .a | last_type_lvl_v2 == .a
+recode last_type (. = .r) if last_type_own == .r | last_type_lvl_v2 == .r
 lab def fac_own_lvl 0 "Public primary" 1 "Public secondary (or higher)" 2 "Private primary" /// 
 					3 "Private secondary (or higher)" 4 "Other primary" 5 "Other secondary (or higher)" ///
 					.a NA .r Refused, replace
@@ -978,6 +1169,7 @@ lab val last_type fac_own_lvl
 
 * drop lac vars for usual_type_own + usual_type_lvl
 *drop p14_col p14_per p14_uru p32_col p32_per p32_uru p33_col p33_per p33_uru
+
 
 * minority
 
@@ -1300,11 +1492,11 @@ order respondent_serial respondent_id country country_reg wave language language
 	  int_length mode strata weight psu_id_for_svy_cmds age age_cat gender urban region ///
 	  insured insur_type insur_type_universal education health health_vge health_mental health_mental_vge health_chronic ///
 	  ever_covid_v1 covid_confirmed_v1 covid_vax_v1 covid_vax_intent_v1 activation ///
-	  usual_source usual_type_own usual_type_lvl usual_type ///
+	  usual_source usual_type_own usual_type_lvl_v2 usual_type ///
 	  usual_reason usual_quality usual_quality_vge visits visits_cat visits_covid_v1 ///
 	  fac_number visits_home visits_tele tele_qual tele_qual_vge visits_total inpatient blood_pressure mammogram ///
 	  cervical_cancer eyes_exam teeth_exam blood_sugar blood_chol hiv_test care_srh care_mental /// 
-	  breast_exam color_ultrasound sti_test endoscope barium_test fecal_blood electrocardiogram mistake discrim unmet_need unmet_reason last_type_own last_type_lvl ///
+	  breast_exam color_ultrasound sti_test endoscope barium_test fecal_blood electrocardiogram mistake discrim unmet_need unmet_reason last_type_own last_type_lvl_v2 ///
 	  last_type last_reason last_sched last_wait_time last_visit_time_v1 last_sched_time ///
 	  last_qual last_qual_vge last_skills last_skills_vge last_supplies last_supplies_vge last_respect last_respect_vge last_know last_know_vge ///
 	  last_explain last_explain_vge last_decisions last_decisions_vge last_visit_rate last_visit_rate_vge last_wait_rate last_wait_rate_vge ///
@@ -1339,7 +1531,8 @@ lab var	covid_vax_intent_v1 "Intent to receive all recommended COVID vaccine dos
 lab var	activation "Patient activation: manage overall health and tell a provider concerns (Q12_a/Q12_b)"
 lab var	usual_source "Whether respondent has a usual source of care (Q13)"
 lab var	usual_type_own "Facility ownership for usual source of care (Q14)"
-lab var	usual_type_lvl "Facility level for usual source of care (Q15)"
+lab var	usual_type_lvl_v1 "Before 2025 revision: Facility level for usual source of care (Q15)"
+lab var	usual_type_lvl_v2 "2025 revision: Facility level for usual source of care (Q15)"
 lab var	usual_type "Facility ownership and level for usual source of care (Q14/Q15)"
 lab var	usual_reason "Main reason for choosing usual source of care facility (Q16)"
 lab var	usual_quality "Overall quality rating of usual source of care (Q17)"
@@ -1376,7 +1569,8 @@ lab var	discrim	"You were treated unfairly or discriminated against in the past 
 lab var	unmet_need "Needed medical attention but did not get healthcare (Q29)"
 lab var	unmet_reason "Reason for not getting healthcare when needed medical attention (Q30)"
 lab var	last_type_own "Facility ownership for last visit to a healthcare provider (Q32)"
-lab var	last_type_lvl "Facility level for last visit to a healthcare provider (Q33)"
+lab var	last_type_lvl_v1 "Before 2025 revision: Facility level for last visit to a healthcare provider (Q33)" 
+lab var	last_type_lvl_v2 "2025 revision: Facility level for last visit to a healthcare provider (Q33)" 
 lab var last_type "Facility ownership and level for last visit to a healthcare provider (Q32/Q33)"
 lab var	last_reason	"Reason for last healthcare visit (Q34)" 
 lab var	last_wait_time "Length of time waited for last visit to a healthcare provider (Q37)"
@@ -1451,7 +1645,7 @@ drop q1217scale m1_a m1_b m1_2_a m1_2_b m1_2_c m1_2_d m1_2_e m1_2_f m1_2_g m2_a 
 
 notes drop _all
 compress 
-save "$data_mc/02 recoded data/pvs_all_countries_v2.dta", replace
+save "$data_mc/02 recoded data/pvs_all_countries_v3.dta", replace
 
 
 /*

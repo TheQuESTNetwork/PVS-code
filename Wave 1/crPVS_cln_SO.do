@@ -304,6 +304,16 @@ lab def q2_label 0 "under 18" 1 "18-29" 2 "30-39" 3 "40-49" 4 "50-59" 5 "60-69" 
 				6 "70-79" 7 "80 +" .r "Refused" .a "NA" .d "Don't Know" .r "Refused"
 lab val q2 q2_label
 
+* add a new label for q15b_so to avoid conflicts
+label define q15b_so_lbl ///
+    1 "Private hospital" ///
+    2 "Private Clinic" ///
+    3 "Pharmacy" ///
+    4 "Traditional practitioner/ Religious healer" ///
+    .a "NA" ///
+    .r "Refused", replace
+
+label values q15b_so q15b_so_lbl
 
 *add new option for q16 
 recode q16 (10 = 15)
@@ -788,13 +798,20 @@ foreach var of varlist q9 q42 q43 q45 {
 }
 */
 
+*********************************************************
+* STEP 8: REPLACE THE ORIGIANL ONE "WEIGHT" USE WEIGHT_MOD 
+*********************************************************
+replace weight = weight_mod
+
+
 * Drop intermediate weighting variables
-drop dw_f2f blend_wgt base_wgt base_wgt_norm
+drop dw_f2f blend_wgt base_wgt base_wgt_norm 
 drop gender age_5g Region education_3g edu_gender
+drop weight_mod
 
 * Reorder variables
 order q*, sequential
-order respondent_id weight weight_mod respondent_serial mode country
+order respondent_id weight respondent_serial mode country
 
 *------------------------------------------------------------------------------*
 
