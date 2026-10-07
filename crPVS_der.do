@@ -576,14 +576,14 @@ lab val insured yes_no
 
 recode q7 ///
     (2001 2003 2012 2013 2017 2018 3001 4023 4024 4025 4026 5003 7004 7010 ///
-     10005 10019 12002 12003 12005 12006 16001 18029 19031 20034 20037 21001 21002 ///
+     10005 10019 12002 12003 12005 12006 16001 18029 20034 20037 21001 21002 ///
      21003 21005 22002 23002 23003 23004 24001 = 0 "Public") ///
     (1004 1005 2028 2010 2011 3002 3007 4027 5004 5005 5006 6001 6003 7013 7015 9008 9009 9995 9997 ///
-     10021 10016 10017 12001 12004 13005 16005 18004 18030 19032 19033 19034 20035 20036 21004 22001 ///
+     10021 10016 10017 12001 12004 13005 16005 18004 18030 20035 20036 21004 22001 ///
      22003 22004 23001 24002 24003 = 1 "Private") ///
     (1001 1002 1003 2015 2016 2006 2007 7011 7012 7008 7019 ///
      10009 10020 10022 13001 13002 13004 16002 16003 16004 = 2 "Social security/military") ///
-    (1006 2995 2020 12995 12007 13995 4995 18995 19995 20995 21006 7021 10009 10020 5997 ///
+    (1006 2995 2020 12995 12007 13995 4995 18995 20995 21006 7021 10009 10020 5997 ///
      23005 6002 24005 = 3 "Other") ///
     (.r = .r "Refused") ///
     (2030 7014 13014 16007 13003 7002 10001 1000 14001 14002 24004 = .a "NA"), ///
@@ -598,13 +598,14 @@ replace insur_type = .a if country == 9
 recode insur_type (.a = 1) if q6_za == 1
 */
 
-replace insur_type = .a if inlist(country, 8, 11, 14, 15, 17, 25) //LW: here just to make sure the countries that have universal coverage systems are ".a"
+replace insur_type = .a if inlist(country, 8, 11, 14, 15, 17, 19, 25) //LW: here just to make sure the countries that have universal coverage systems are ".a"
 
 recode insur_type (. = .a) if q7 == . & inlist(country, 2, 7, 10, 23) //LW: here just to make sure all "." goes to the right categories
 
 * insur_type_universal
-recode q7 (8002 11002 17002 = 0 "Public or mandatory private") ///
-		  (8001 11001 17001 = 1 "Supplemental private") /// 
+recode q7 (8002 11002 17002 19031 = 0 "Public or mandatory private") ///
+		  (8001 11001 17001 19032 19033 19034 = 1 "Supplemental private") /// 
+		  (19995 = 2 "Other") /// 
 		  (.r = .r "Refused") (.a  = .a "NA"), gen(insur_type_universal)
 
 recode insur_type_universal (.a = 1) if q7_kr == 1
@@ -644,7 +645,7 @@ recode insur_type_universal (.a = 0) if q7a_ch !=1 & q7b_ch !=1 & ///
 *removing these from finalized dataset (confirm if they should be kept in)
 drop q7a_ch q7b_ch q7c_ch q7d_ch q7e_ch q7f_ch q7g_ch q7h_ch q7i_ch q7j_ch
 			
-replace insur_type_universal = .a if !inlist(country, 8, 11, 14, 15, 17, 25) //LW: here just to make sure the countries that don't have universal coverage systems are ".a"
+replace insur_type_universal = .a if !inlist(country, 8, 11, 14, 15, 17, 19, 25) //LW: here just to make sure the countries that don't have universal coverage systems are ".a"
 
 * education
 recode q8 (1001 1002 3001 3002 5007 9012 9013 2025 2026 7018 7019 10032 10033 11001 13001 ///
