@@ -1452,7 +1452,7 @@ drop q1217scale m1_a m1_b m1_2_a m1_2_b m1_2_c m1_2_d m1_2_e m1_2_f m1_2_g m2_a 
 
 notes drop _all
 compress 
-save "$data_mc/02 recoded data/pvs_all_countries_v2.dta", replace
+save "$data_mc/02 recoded data/pvs_all_countries_v3.dta", replace
 
 
 /*
