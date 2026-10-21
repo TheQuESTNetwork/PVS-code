@@ -576,14 +576,14 @@ lab val insured yes_no
 
 recode q7 ///
     (2001 2003 2012 2013 2017 2018 3001 4023 4024 4025 4026 5003 7004 7010 ///
-     10005 10019 12002 12003 12005 12006 16001 18029 19031 20034 20037 21001 21002 ///
+     10005 10019 12002 12003 12005 12006 16001 18029 20034 20037 21001 21002 ///
      21003 21005 22002 23002 23003 23004 24001 = 0 "Public") ///
     (1004 1005 2028 2010 2011 3002 3007 4027 5004 5005 5006 6001 6003 7013 7015 9008 9009 9995 9997 ///
-     10021 10016 10017 12001 12004 13005 16005 18004 18030 19032 19033 19034 20035 20036 21004 22001 ///
+     10021 10016 10017 12001 12004 13005 16005 18004 18030 20035 20036 21004 22001 ///
      22003 22004 23001 24002 24003 = 1 "Private") ///
     (1001 1002 1003 2015 2016 2006 2007 7011 7012 7008 7019 ///
      10009 10020 10022 13001 13002 13004 16002 16003 16004 = 2 "Social security/military") ///
-    (1006 2995 2020 12995 12007 13995 4995 18995 19995 20995 21006 7021 10009 10020 5997 ///
+    (1006 2995 2020 12995 12007 13995 4995 18995 20995 21006 7021 10009 10020 5997 ///
      23005 6002 24005 = 3 "Other") ///
     (.r = .r "Refused") ///
     (2030 7014 13014 16007 13003 7002 10001 1000 14001 14002 24004 = .a "NA"), ///
@@ -598,13 +598,14 @@ replace insur_type = .a if country == 9
 recode insur_type (.a = 1) if q6_za == 1
 */
 
-replace insur_type = .a if inlist(country, 8, 11, 14, 15, 17, 25) //LW: here just to make sure the countries that have universal coverage systems are ".a"
+replace insur_type = .a if inlist(country, 8, 11, 14, 15, 17, 19, 25) //LW: here just to make sure the countries that have universal coverage systems are ".a"
 
 recode insur_type (. = .a) if q7 == . & inlist(country, 2, 7, 10, 23) //LW: here just to make sure all "." goes to the right categories
 
 * insur_type_universal
-recode q7 (8002 11002 17002 = 0 "Public or mandatory private") ///
-		  (8001 11001 17001 = 1 "Supplemental private") /// 
+recode q7 (8002 11002 17002 19031 = 0 "Public or mandatory private") ///
+		  (8001 11001 17001 19032 19033 19034 = 1 "Supplemental private") /// 
+		  (19995 = 2 "Other") /// 
 		  (.r = .r "Refused") (.a  = .a "NA"), gen(insur_type_universal)
 
 recode insur_type_universal (.a = 1) if q7_kr == 1
@@ -644,21 +645,21 @@ recode insur_type_universal (.a = 0) if q7a_ch !=1 & q7b_ch !=1 & ///
 *removing these from finalized dataset (confirm if they should be kept in)
 drop q7a_ch q7b_ch q7c_ch q7d_ch q7e_ch q7f_ch q7g_ch q7h_ch q7i_ch q7j_ch
 			
-replace insur_type_universal = .a if !inlist(country, 8, 11, 14, 15, 17, 25) //LW: here just to make sure the countries that don't have universal coverage systems are ".a"
+replace insur_type_universal = .a if !inlist(country, 8, 11, 14, 15, 17, 19, 25) //LW: here just to make sure the countries that don't have universal coverage systems are ".a"
 
 * education
 recode q8 (1001 1002 3001 3002 5007 9012 9013 2025 2026 7018 7019 10032 10033 11001 13001 ///
 		   14001 12001 15001 16001 16002 4039 17001 18045 19052 20058 21001 21002 ///
 		   22001 22002 2001 2002 7001 7002 10001 23001 23010 23011 6001 ///
 		   24013 25001 = 0 "None (or no formal education)") ///
-          (1003 3003 5008 8001 9014 9015 2027 7020 10034 11002 13002 14002 12002 12003 ///
-		   15002 16003 4040 17002 18046 19053 20059 21003 21004 22003 22004 ///
+          (1003 3003 5008 8001 9014 9015 2027 7020 10034 11002 13002 12002 12003 ///
+		   14002 15002 16003 4040 17002 18046 19053 20059 21003 21004 22003 22004 ///
 		   2003 7003 10002 10003 23002 23003 6002 24012 25002 = 1 "Primary") ///
-		   (1004 3004 5009 9016 2028 7021 8002 10035 11003 11004 14004 14005 13003 13004 12004 ///
-		   15003 15004 16004 4041 14003 17003 18047 19054 19055 20060 21005 21006 ///
+		   (1004 3004 5009 9016 2028 7021 8002 10035 11003 11004 14003 14004 14005 13003 13004 12004 ///
+		   15003 15004 16004 4041 17003 18047 19054 19055 20060 21005 21006 ///
 		   22005 2004 7004 10004 23004 23005 23009 6003 24002 24003 24004 24005 24006 24007 24008 24009 24010 24011 25003 25004 25005 25008 25009 = 2 "Secondary") ///
           (1005 1006 1007 3005 5010 5011 9017 2029 2030 2031 7022 7023 7024 8003 8004 8005 10036 10037 10038 11005 ///
-		   11006 14006 14007 13005 13006 13007 12005 12006 15005 15006 15007 16005 ///
+		   11006 12005 12006 13005 13006 13007 14006 14007 14008 15005 15006 15007 16005 ///
 		   16006 16007 4042 4043 4044 17004 17005 18048 18049 18050 19056 19057 19058 20061 ///
 		   20062 21007 21008 21009 21010 22006 2005 2006 2007 7005 7006 7007 10005 ///
 		   10006 10007 23006 23007 23008 6004 24001 25006 25007 25010 25011 25012 = 3 "Post-secondary") ///
@@ -1451,7 +1452,7 @@ drop q1217scale m1_a m1_b m1_2_a m1_2_b m1_2_c m1_2_d m1_2_e m1_2_f m1_2_g m2_a 
 
 notes drop _all
 compress 
-save "$data_mc/02 recoded data/pvs_all_countries_v2.dta", replace
+save "$data_mc/02 recoded data/pvs_all_countries_v3.dta", replace
 
 
 /*
